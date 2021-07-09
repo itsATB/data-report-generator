@@ -1,6 +1,6 @@
 By Adeoye Banjo
 
-Canadian Graduate Statistics
+#Canadian Graduate Statistics
     Program uses a data file to compute and display different
     reports made from data records
 
@@ -22,9 +22,13 @@ This report calculates the proportion of graduates from each
 region to the the total in canada
 
 
+
 Compilation:
+
+*Skip this step if downloading .zip from GitHub*
 Untar file:
   tar -xvf mt.tar
+  
 Run makefile:
   make
 Run program:
