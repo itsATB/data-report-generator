@@ -14,7 +14,7 @@ DegreeReport.cc       grad.dat             Record.cc   View.h
 
 Extra Reports:
 1. DegreeReport 
-This is report calculates the most commonly attained degree 
+This report calculates the most commonly attained degree 
 of the graduates in each region, for all years, and genders
 
 2. AverageReport
