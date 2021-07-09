@@ -1,6 +1,6 @@
 By Adeoye Banjo
 
-#Canadian Graduate Statistics
+Canadian Graduate Statistics
     Program uses a data file to compute and display different
     reports made from data records
 
@@ -30,6 +30,6 @@ Untar file:
   tar -xvf mt.tar
   
 Run makefile:
-  make
+  final/make
 Run program:
   ./f
