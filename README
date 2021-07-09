@@ -1,5 +1,4 @@
-Adeoye Banjo
-101109343
+By Adeoye Banjo
 
 Canadian Graduate Statistics
     Program uses a data file to compute and display different
@@ -21,3 +20,12 @@ of the graduates in each region, for all years, and genders
 2. AverageReport
 This report calculates the proportion of graduates from each
 region to the the total in canada
+
+
+Compilation:
+Untar file:
+  tar -xvf mt.tar
+Run makefile:
+  make
+Run program:
+  ./f
