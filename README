@@ -2,7 +2,7 @@ By Adeoye Banjo
 
 Canadian Graduate Statistics
     Program uses a data file to compute and display different
-    reports made form data records
+    reports made from data records
 
 Files:
 AverageReport.cc      desktop.ini          main.cc     Record.h
