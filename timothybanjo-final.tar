@@ -1,0 +1,1511 @@
+./0000770000000000017460000000000013765570061010266 5ustar  rootvboxsf./AverageReport.cc0000770000000000017460000000550413765564034013355 0ustar  rootvboxsf#include "ReportGenerator.h"
+
+AverageReport::AverageReport(string s) : ReportGenerator(s)
+{ }
+
+AverageReport::~AverageReport()
+{ }
+
+void AverageReport::execute(string& outStr){
+    stringstream ss;
+    vector<float> avg2000, avg2005, avg2010, avg2015;
+    int canada2000=0, canada2005=0, canada2010=0, canada2015=0;
+
+    //Calculate total graduates for each year in Canada
+    for(int j=0; j<allRegions[9]->getSize(); j++)
+        if(allRegions[9][0][j]->getYear()==2000)
+            canada2000+=allRegions[9][0][j]->getNumGrads();
+    for(int j=0; j<allRegions[9]->getSize(); j++)
+        if(allRegions[9][0][j]->getYear()==2005)
+            canada2005+=allRegions[9][0][j]->getNumGrads();
+    for(int j=0; j<allRegions[9]->getSize(); j++)
+        if(allRegions[9][0][j]->getYear()==2010)
+            canada2010+=allRegions[9][0][j]->getNumGrads();
+    for(int j=0; j<allRegions[9]->getSize(); j++)
+        if(allRegions[9][0][j]->getYear()==2015)
+            canada2015+=allRegions[9][0][j]->getNumGrads();
+
+    //Calculate averages for each region
+    for(int i=0;i<allRegions.size();i++)
+        calcAvg(allRegions[i]->getProperty(), i, canada2000, avg2000);
+    for(int i=0;i<allRegions.size();i++)
+        calcAvg(allRegions[i]->getProperty(), i, canada2005, avg2005);
+    for(int i=0;i<allRegions.size();i++)
+        calcAvg(allRegions[i]->getProperty(), i, canada2010, avg2010);
+    for(int i=0;i<allRegions.size();i++)
+        calcAvg(allRegions[i]->getProperty(), i, canada2015, avg2015);
+
+    //Send to outString
+    ss<<left<<"Region  |"<<setw(9)<<"2000"<<"|"<<setw(9)<<"2005"<<"|"<<setw(9)<<"2010"<<"|"<<setw(9)<<"2015"<<endl;
+    for(int i=0; i<allRegions.size(); i++)
+        ss<<left<<setw(8)<< allRegions[i]->getProperty() <<"|"<<setw(6)<< avg2000[i] <<"%  |"<<
+           setw(6)<< avg2005[i] <<"%  |"<<
+           setw(6)<< avg2010[i] <<"%  |"<<
+           setw(6)<< avg2015[i] <<"%  |"<<endl;
+    
+    outStr  = ss.str();
+}
+
+void AverageReport::calcAvg(string reg, int index, int canada, vector<float>& avgs){
+    //Get total for region
+    for(int i=0; i<allRegions.size(); i++){
+        int totalE = 0;
+        float avg;
+        //cout<<"i: "<<i<<endl;
+        for(int j=0; j<allRegions[i]->getSize(); j++){
+            //cout<<"j: "<<j<<endl;
+            //allRegions[i]->print();
+            if(allRegions[i][0][j]->getRegion()==reg){
+                totalE+=allRegions[i][0][j]->getNumGrads();
+                //allRegions[i][0][j]->print();
+            }
+        }
+        //Calculate, round, push to vector
+        avg = ( (float)totalE/ (float)canada )*100 ;
+        avg = (int)(avg*1000 + .5);
+        avgs.push_back( (float)avg /1000 );
+
+        //cout<<allRegions[i][0][0]->getRegion()<<" - Total grads: "<<totalE<<" Total canada: "<<canada
+            //<<" - "<<avg<<endl;
+    }
+}./comp2404fpUML.drawio0000770000000000017460000001005613765334443013660 0ustar  rootvboxsf<mxfile host="app.diagrams.net" modified="2020-12-13T06:48:00.430Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36" etag="GjkP7c2K3OuPJGAWN_SF" version="14.0.1" type="google"><diagram id="C5RBs43oDa-KdzZeNtuy" name="Page-1">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</diagram></mxfile>./Control.cc0000770000000000017460000000346413765566505012237 0ustar  rootvboxsf
+#include "Control.h"
+
+Control::Control(){
+  View view;
+  initReoprts();
+}
+
+void Control::launch()
+{
+  int choice = 5;
+  while (1) {
+    view.showMenu(choice, names);
+    string out="";
+
+    if (choice == 0)
+      break;
+
+    //Print report 1
+    if (choice == 1) {
+      reports[0]->execute(out);
+      view.printStr(out);
+    }
+
+    //Print report 2
+    if (choice == 2) {
+      reports[1]->execute(out);
+      view.printStr(out);
+    }
+
+    //Print report 3
+    if (choice == 3) {
+      reports[2]->execute(out);
+      view.printStr(out);
+    }
+
+    //Print report 4
+    if (choice == 4) {
+      reports[3]->execute(out);
+      view.printStr(out);
+    }
+
+    //Print report 5
+    if (choice == 5) {
+      reports[4]->execute(out);
+      view.printStr(out);
+    }
+
+  }
+
+  //Free up memory
+  freeReports();
+}
+
+void Control::initReoprts()
+{
+  EmploymentAll* r1 = new EmploymentAll("Percents of graduates who get employed(in all regions)");
+  reports.push_back(r1);
+  names.push_back(r1->getName());
+
+  EmploymentFemale* r2 = new EmploymentFemale("Top and Bottom 3 Regions for proportions of Female graduates");
+  reports.push_back(r2);
+  names.push_back(r2->getName());
+
+  EmploymentYear* r3 = new EmploymentYear("Proportion of those employed in each region to the total employed in Canada (in all years)");
+  reports.push_back(r3);
+  names.push_back(r3->getName());
+
+  DegreeReport* r4 = new DegreeReport("Most attained degree in each region");
+  reports.push_back(r4);
+  names.push_back(r4->getName());
+
+  AverageReport* r5 = new AverageReport("Average number graduates from each region (in all years)");
+  reports.push_back(r5);
+  names.push_back(r5->getName());
+
+  ReportGenerator::loadRecords();  
+  ReportGenerator::loadPartials();
+}
+
+void Control::freeReports()
+{
+  for (size_t i = 0; i < reports.size(); i++)
+    delete reports[i];  
+}
+./Control.h0000770000000000017460000000142213765566650012072 0ustar  rootvboxsf#ifndef CONTROL_H
+#define CONTROL_H
+#include <iostream>
+#include <string>
+using namespace std;
+
+#include "ReportGenerator.h"
+#include "View.h"
+
+/*
+Class:    Control
+Purpose:  contains large list of data records used to calculate statistical
+            reports on recorded data
+
+Member function:  constructor
+   Side effects:  initializes ReportGenerator's records
+
+Member function:  destructor
+   Side effects:  calls Report Generator's destructor
+
+Member function:  launch
+        Purpose:  begins program
+*/
+
+class Control
+{
+  public:
+    Control();
+    void initReoprts();
+    void show();
+    void freeReports();
+    void initMembers();
+    void initRatings();
+    void launch();
+  private:
+    vector<ReportGenerator*> reports;
+    vector<string> names;
+    View view;
+};
+
+#endif
+./DegreeReport.cc0000770000000000017460000000421113765556116013172 0ustar  rootvboxsf#include "ReportGenerator.h"
+
+DegreeReport::DegreeReport(string s) : ReportGenerator(s)
+{ }
+
+DegreeReport::~DegreeReport()
+{ }
+
+void DegreeReport::execute(string& outStr){
+    stringstream ss;
+    vector<string> top;
+
+    //Get and calculate proportions for each region
+    for(int i=0;i<allRegions.size();i++)
+        calcHighest(allRegions[i]->getProperty(), i, top);
+
+    //Send proportions to outString
+    ss<<left<<setw(8)<<"Region  |"<<setw(9)<<"Degree"<<endl;
+    for(int i=0; i<allRegions.size(); i++)
+        ss<<left<<setw(8)<< allRegions[i]->getProperty() <<"| "<<setw(6)<< top[i]<<endl;
+    
+    outStr  = ss.str();
+}
+
+void DegreeReport::calcHighest(string reg, int index, vector<string>& top){
+    int doc=0, mast=0, bach=0, col=0;
+    vector<int> degrees;
+    string highest="";
+
+    //calc numbers
+    for(int i=0; i<allRegions[index]->getSize(); i++){
+        if(allRegions[index][0][i]->getDegree()=="Doctorate")
+            doc+=allRegions[index][0][i]->getNumGrads(); 
+        if(allRegions[index][0][i]->getDegree()=="Master's")
+            mast+=allRegions[index][0][i]->getNumGrads();
+        if(allRegions[index][0][i]->getDegree()=="Bachelor's")
+            bach+=allRegions[index][0][i]->getNumGrads();
+        if(allRegions[index][0][i]->getDegree()=="College")
+            col+=allRegions[index][0][i]->getNumGrads();
+        //cout<<"-D: "<<doc<<" -M: "<<mast<<" -B: "<<bach<<" -C:"<<col<<endl;
+    }
+    degrees.push_back(doc); degrees.push_back(mast); 
+    degrees.push_back(bach); degrees.push_back(col);
+    //cout<<"Final: -D: "<<doc<<" -M: "<<mast<<" -B: "<<bach<<" -C:"<<col<<endl;
+
+    //Sort list
+    int temp;
+    for(int i=0;i<degrees.size();i++)
+	{		
+		for(int j=i+1;j<degrees.size();j++)
+		{
+			if(degrees[i]>degrees[j])
+			{
+				temp  =degrees[i];
+				degrees[i]=degrees[j];
+				degrees[j]=temp;
+			}
+		}
+	}
+
+    //Get highest
+    if(degrees[3]==doc)
+        highest = "Doctorate";
+    if(degrees[3]==mast)
+        highest = "Master";
+    if(degrees[3]==bach)
+        highest = "Bachelor";
+    if(degrees[3]==col)
+        highest = "College";
+    top.push_back(highest);
+}./desktop.ini0000770000000000017460000000021013765053336012435 0ustar  rootvboxsf[.ShellClassInfo]
+InfoTip=This folder is shared online.
+IconFile=C:\Program Files\Google\Drive\googledrivesync.exe
+IconIndex=16
+    ./EmploymentAll.cc0000770000000000017460000000220313765411440013352 0ustar  rootvboxsf#include "ReportGenerator.h"
+
+EmploymentAll::EmploymentAll(string s) : ReportGenerator(s)
+{ }
+
+EmploymentAll::~EmploymentAll()
+{ }
+
+void EmploymentAll::execute(string& outStr){
+    stringstream ss;
+    vector<float> proportions;
+    long int totalE=0, totalG=0;
+
+    //Get and calculate proportions for each region
+    for(int i=0; i<allRegions.size(); i++){
+        float prop;
+        //cout<<"i: "<<i<<endl;
+        for(int j=0; j<allRegions[i]->getSize(); j++){
+            //cout<<"j: "<<j<<endl;
+            //allRegions[i]->print();
+            totalG+=allRegions[i][0][j]->getNumGrads();
+            totalE+=allRegions[i][0][j]->getNumEmployed();
+        }
+        //Calculate, round, push to vector
+        prop = ( (float)totalE/(float)totalG ) *100;
+        prop = (int)(prop*1000 + .5);
+        proportions.push_back( (float)prop /1000 );
+    }
+
+    //Send proportions to outString
+    ss<<"Region    |    Proportion       "<<endl;
+    for(int i=0; i<allRegions.size(); i++)
+        ss<< allRegions[i]->getProperty() <<"        |       "<< proportions[i] <<"%       |"<<endl;
+    
+    outStr  = ss.str();
+}
+./EmploymentFemale.cc0000770000000000017460000001016413765314353014045 0ustar  rootvboxsf#include "ReportGenerator.h"
+
+EmploymentFemale::EmploymentFemale(string s) : ReportGenerator(s)
+{ }
+
+EmploymentFemale::~EmploymentFemale()
+{ }
+
+void EmploymentFemale::execute(string& outStr){
+    stringstream ss;
+    vector<float> bottom, top;
+    vector<string> topRegions, bottomRegions;
+
+    //Calc top
+    calcTop(top, topRegions);    
+    
+    //Calc bottom
+    calcBottom(bottom,bottomRegions);
+
+    //Send to outstring
+    ss<<"Region       |    Proportion       "<<endl;
+
+    ss<<"Top 3:               "<<endl;
+    for(int i=0; i<top.size(); i++)
+        ss<<i+1<<". "<< topRegions[i] <<"        |       "<< top[i] <<"%       |"<<endl;
+        
+    ss<<"Bottom 3:               "<<endl;
+    for(int i=0; i<bottom.size(); i++)
+        ss<<i+1<<". "<< bottomRegions[i] <<"        |       "<< bottom[i] <<"%       |"<<endl;
+
+    outStr  = ss.str();
+}
+
+void EmploymentFemale::calcTop(vector<float>& top, vector<string>& topRegions){
+    vector<float> proportions, ordered;
+    vector<string> regions, orderedRegions;
+
+    //Calculate proportions
+    for(int i=0; i<allRegions.size(); i++){
+        float prop;        
+        int totalF=0, totalG=0;
+        for(int j=0; j<allRegions[i]->getSize(); j++){
+            totalG+=allRegions[i][0][j]->getNumGrads();
+            if(allRegions[i][0][j]->getGender() == "Females")
+                totalF+=allRegions[i][0][j]->getNumGrads();
+        }
+
+        //Calculate, round, push to vector
+        prop = ( (float)totalF/(float)totalG ) *100;
+        prop = (int)(prop*1000 + .5);
+        proportions.push_back( (float)prop /1000 );
+        regions.push_back( allRegions[i][0][0]->getRegion() );
+        
+        //cout<<allRegions[i][0][0]->getRegion()<<" - Total Females: "<<totalF<<" Total graduates: "<<totalG
+            //<<" - "<<prop/1000<<"%"<<endl;
+    }
+
+    //Order Proportions
+    for(int j=0; j<3; j++){
+        float highest=0;
+        for(int i=0;i<proportions.size();i++){
+            if(proportions[i] > highest){
+                highest = proportions[i];
+                ordered.push_back(proportions[i]);
+                orderedRegions.push_back(regions[i]);
+                continue;
+            }
+        }
+    }
+
+    //Get highest ones
+    for(int i=ordered.size()-1; i>=9; i--){
+        top.push_back(ordered[i]);
+        topRegions.push_back(orderedRegions[i]);
+    }
+}
+
+void EmploymentFemale::calcBottom(vector<float>& bottom, vector<string>& bottomRegions){
+    vector<float> proportions, ordered;
+    vector<string> regions, orderedRegions;
+
+    //Calculate proportions
+    for(int i=0; i<allRegions.size(); i++){
+        float prop;        
+        int totalF=0, totalG=0;
+        for(int j=0; j<allRegions[i]->getSize(); j++){
+            totalG+=allRegions[i][0][j]->getNumGrads();
+            if(allRegions[i][0][j]->getGender() == "Females")
+                totalF+=allRegions[i][0][j]->getNumGrads();
+        }
+
+        //Calculate, round, push to vector
+        prop = ( (float)totalF/(float)totalG ) *100;
+        prop = (int)(prop*1000 + .5);
+        proportions.push_back( (float)prop /1000 );
+        regions.push_back( allRegions[i][0][0]->getRegion() );
+        
+        //cout<<allRegions[i][0][0]->getRegion()<<" - Total Females: "<<totalF<<" Total graduates: "<<totalG
+            //<<" - "<<prop/1000<<"%"<<endl;
+    }
+
+    //Sort  Proportions
+    float temp;
+    string tmp;
+    for(int i=0;i<proportions.size();i++)
+	{		
+		for(int j=i+1;j<proportions.size();j++)
+		{
+			if(proportions[i]>proportions[j])
+			{
+				temp  =proportions[i];
+				proportions[i]=proportions[j];
+				proportions[j]=temp;
+                tmp  =regions[i];
+				regions[i]=regions[j];
+				regions[j]=tmp;
+			}
+		}
+	}
+    
+    //Get bottom ones
+    for(int i=0; i<3; i++){
+        bottom.push_back(proportions[i]);
+        bottomRegions.push_back(regions[i]);
+    }
+}
+
+template <typename T>
+void sort(vector<T>& arr){
+    T temp;
+    for(int i=0;i<arr.size();i++)
+	{		
+		for(int j=i+1;j<arr.size();j++)
+		{
+			if(arr[i]>arr[j])
+			{
+				temp  =arr[i];
+				arr[i]=arr[j];
+				arr[j]=temp;
+			}
+		}
+	}
+}./EmploymentYear.cc0000770000000000017460000000525713765560545013571 0ustar  rootvboxsf#include "ReportGenerator.h"
+
+EmploymentYear::EmploymentYear(string s) : ReportGenerator(s)
+{ }
+
+EmploymentYear::~EmploymentYear()
+{ }
+
+void EmploymentYear::execute(string& outStr){
+    stringstream ss;
+    vector<float> proportion2000, proportion2005, proportion2010, proportion2015;
+    long int canada2000=0, canada2005=0, canada2010=0, canada2015=0;
+
+    //Calculate total employees for each year in Canada
+    for(int j=0; j<allRegions[9]->getSize(); j++)
+        if(allRegions[9][0][j]->getYear()==2000)
+            canada2000+=allRegions[9][0][j]->getNumEmployed();
+    for(int j=0; j<allRegions[9]->getSize(); j++)
+        if(allRegions[9][0][j]->getYear()==2005)
+            canada2005+=allRegions[9][0][j]->getNumEmployed();
+    for(int j=0; j<allRegions[9]->getSize(); j++)
+        if(allRegions[9][0][j]->getYear()==2010)
+            canada2010+=allRegions[9][0][j]->getNumEmployed();
+    for(int j=0; j<allRegions[9]->getSize(); j++)
+        if(allRegions[9][0][j]->getYear()==2015)
+            canada2015+=allRegions[9][0][j]->getNumEmployed();
+
+    //Get and calculate proportions for each region
+    calcYear(2000, canada2000, proportion2000);
+    calcYear(2005, canada2005, proportion2005);
+    calcYear(2010, canada2010, proportion2010);
+    calcYear(2015, canada2015, proportion2015);
+    
+    
+
+
+    //Send proportions to outString
+    ss<<left<<"Region  |"<<setw(9)<<"2000"<<"|"<<setw(9)<<"2005"<<"|"<<setw(9)<<"2010"<<"|"<<setw(9)<<"2015"<<endl;
+    for(int i=0; i<allRegions.size(); i++)
+        ss<<left<<setw(8)<< allRegions[i]->getProperty() <<"|"<<setw(6)<< proportion2000[i] <<"%  |"<<
+           setw(6)<< proportion2005[i] <<"%  |"<<
+           setw(6)<< proportion2010[i] <<"%  |"<<
+           setw(6)<< proportion2015[i] <<"%  |"<<endl;
+    
+    outStr  = ss.str();
+}
+
+void EmploymentYear::calcYear(int y, int canada, vector<float>& proportions){
+    
+    for(int i=0; i<allRegions.size(); i++){
+        int totalE = 0;
+        float prop;
+        //cout<<"i: "<<i<<endl;
+        for(int j=0; j<allRegions[i]->getSize(); j++){
+            //cout<<"j: "<<j<<endl;
+            //allRegions[i]->print();
+            if(allRegions[i][0][j]->getYear()==y){
+                totalE+=allRegions[i][0][j]->getNumEmployed();
+                //allRegions[i][0][j]->print();
+            }
+        }
+        //Calculate, round, push to vector
+        prop = ( (float)totalE/ (float)canada ) *100;
+        prop = (int)(prop*1000 + .5);
+        proportions.push_back( (float)prop /1000 );
+
+        //cout<<allRegions[i][0][0]->getRegion()<<" - Total Employed: "<<totalE<<" Total canada: "<<canada
+            //<<" - "<<prop/1000<<"%"<<endl;
+    }
+}./grad.dat0000770000000000017460000004030013764754172011703 0ustar  rootvboxsf2000 AB Bachelor's All 6900 7500
+2005 AB Bachelor's All 9300 10000
+2010 AB Bachelor's All 9207 9900
+2015 AB Bachelor's All 9900 11000
+2000 AB College All 3822 4200
+2005 AB College All 6624 7200
+2010 AB College All 8004 8700
+2015 AB College All 9612 10800
+2000 AB Doctorate All 380 400
+2005 AB Doctorate All 380 400
+2010 AB Doctorate All 558 600
+2015 AB Doctorate All 528 600
+2000 AB Master's All 1504 1600
+2005 AB Master's All 2090 2200
+2010 AB Master's All 2418 2600
+2015 AB Master's All 2912 3200
+2000 BC Bachelor's All 8712 9900
+2005 BC Bachelor's All 10695 11500
+2010 BC Bachelor's All 13320 14800
+2015 BC Bachelor's All 12371 13900
+2000 BC College All 9152 10400
+2005 BC College All 7626 8200
+2010 BC College All 11011 12100
+2015 BC College All 13320 14800
+2000 BC Doctorate All 380 400
+2005 BC Doctorate All 279 300
+2010 BC Doctorate All 564 600
+2015 BC Doctorate All 376 400
+2000 BC Master's All 2325 2500
+2005 BC Master's All 2392 2600
+2010 BC Master's All 3240 3600
+2015 BC Master's All 4185 4500
+2000 CAN Bachelor's All 70920 78800
+2005 CAN Bachelor's All 86268 94800
+2010 CAN Bachelor's All 92552 100600
+2015 CAN Bachelor's All 97560 108400
+2000 CAN College All 67500 75000
+2005 CAN College All 64620 71800
+2010 CAN College All 79560 88400
+2015 CAN College All 83037 93300
+2000 CAN Doctorate All 3330 3700
+2005 CAN Doctorate All 2912 3200
+2010 CAN Doctorate All 5208 5600
+2015 CAN Doctorate All 4410 4900
+2000 CAN Master's All 19019 20900
+2005 CAN Master's All 23064 24800
+2010 CAN Master's All 30636 33300
+2015 CAN Master's All 42504 46200
+2000 MB Bachelor's All 2697 2900
+2005 MB Bachelor's All 3312 3600
+2010 MB Bachelor's All 3102 3300
+2015 MB Bachelor's All 3330 3700
+2000 MB College All 1729 1900
+2005 MB College All 2232 2400
+2010 MB College All 2576 2800
+2015 MB College All 2552 2900
+2000 MB Doctorate All 99 100
+2005 MB Doctorate All 92 100
+2010 MB Doctorate All 90 100
+2015 MB Doctorate All 87 100
+2000 MB Master's All 460 500
+2005 MB Master's All 570 600
+2010 MB Master's All 658 700
+2015 MB Master's All 890 1000
+2000 NB Bachelor's All 1740 2000
+2005 NB Bachelor's All 2070 2300
+2010 NB Bachelor's All 2139 2300
+2015 NB Bachelor's All 1820 2000
+2000 NB College All 1914 2200
+2005 NB College All 2070 2300
+2010 NB College All 810 1000
+2015 NB College All 2136 2400
+2000 NB Doctorate All 0 0
+2005 NB Doctorate All 0 0
+2010 NB Doctorate All 0 0
+2015 NB Doctorate All 88 100
+2000 NB Master's All 279 300
+2005 NB Master's All 368 400
+2010 NB Master's All 360 400
+2015 NB Master's All 460 500
+2000 NL Bachelor's All 957 1100
+2005 NL Bachelor's All 1408 1600
+2010 NL Bachelor's All 1274 1400
+2015 NL Bachelor's All 1157 1300
+2000 NL College All 1120 1400
+2005 NL College All 510 600
+2010 NL College All 1558 1900
+2015 NL College All 344 400
+2000 NL Doctorate All 0 0
+2005 NL Doctorate All 0 0
+2010 NL Doctorate All 0 0
+2000 NL Master's All 279 300
+2005 NL Master's All 376 400
+2010 NL Master's All 380 400
+2015 NL Master's All 588 700
+2000 NS Bachelor's All 2759 3100
+2005 NS Bachelor's All 3420 3800
+2010 NS Bachelor's All 3367 3700
+2015 NS Bachelor's All 3382 3800
+2000 NS College All 2436 2800
+2005 NS College All 2288 2600
+2010 NS College All 2924 3400
+2015 NS College All 2730 3000
+2000 NS Doctorate All 96 100
+2005 NS Doctorate All 100 100
+2010 NS Doctorate All 92 100
+2015 NS Doctorate All 89 100
+2000 NS Master's All 752 800
+2005 NS Master's All 1235 1300
+2010 NS Master's All 1425 1500
+2015 NS Master's All 1656 1800
+2000 ON Bachelor's All 26730 29700
+2005 ON Bachelor's All 32670 36300
+2010 ON Bachelor's All 33306 36600
+2015 ON Bachelor's All 38092 42800
+2000 ON College All 34830 38700
+2005 ON College All 27323 30700
+2010 ON College All 34290 38100
+2015 ON College All 34848 39600
+2000 ON Doctorate All 1260 1400
+2005 ON Doctorate All 1274 1400
+2010 ON Doctorate All 1729 1900
+2015 ON Doctorate All 1890 2100
+2000 ON Master's All 7290 8100
+2005 ON Master's All 8556 9200
+2010 ON Master's All 11776 12800
+2015 ON Master's All 15640 17000
+2000 PE Bachelor's All 273 300
+2005 PE Bachelor's All 264 300
+2010 PE Bachelor's All 380 400
+2015 PE Bachelor's All 440 500
+2000 PE College All 728 800
+2005 PE College All 528 600
+2010 PE College All 623 700
+2015 PE College All 801 900
+2000 PE Doctorate All 0 0
+2010 PE Doctorate All 0 0
+2005 PE Master's All 0 0
+2010 PE Master's All 0 0
+2015 PE Master's All 92 100
+2000 QC Bachelor's All 16896 19200
+2005 QC Bachelor's All 20202 22200
+2010 QC Bachelor's All 23064 24800
+2015 QC Bachelor's All 23751 26100
+2000 QC College All 9282 10200
+2005 QC College All 13650 15000
+2010 QC College All 15640 17000
+2015 QC College All 14400 16000
+2000 QC Doctorate All 1056 1200
+2005 QC Doctorate All 792 900
+2010 QC Doctorate All 1860 2000
+2015 QC Doctorate All 1246 1400
+2000 QC Master's All 5670 6300
+2005 QC Master's All 7068 7600
+2010 QC Master's All 9765 10500
+2015 QC Master's All 15364 16700
+2000 SK Bachelor's All 2883 3100
+2005 SK Bachelor's All 2883 3100
+2010 SK Bachelor's All 3220 3500
+2015 SK Bachelor's All 3128 3400
+2000 SK College All 1932 2100
+2005 SK College All 1767 1900
+2010 SK College All 2208 2400
+2015 SK College All 2001 2300
+2000 SK Doctorate All 88 100
+2005 SK Doctorate All 92 100
+2010 SK Doctorate All 96 100
+2015 SK Doctorate All 89 100
+2000 SK Master's All 470 500
+2005 SK Master's All 460 500
+2010 SK Master's All 651 700
+2015 SK Master's All 837 900
+2000 AB Bachelor's Females 4140 4500
+2005 AB Bachelor's Females 5642 6200
+2010 AB Bachelor's Females 5369 5900
+2015 AB Bachelor's Females 6120 6800
+2000 AB College Females 2160 2400
+2005 AB College Females 4230 4700
+2010 AB College Females 4576 5200
+2015 AB College Females 5829 6700
+2000 AB Doctorate Females 186 200
+2005 AB Doctorate Females 188 200
+2010 AB Doctorate Females 288 300
+2015 AB Doctorate Females 170 200
+2000 AB Master's Females 819 900
+2005 AB Master's Females 1128 1200
+2010 AB Master's Females 1472 1600
+2015 AB Master's Females 1800 2000
+2000 BC Bachelor's Females 5280 6000
+2005 BC Bachelor's Females 6716 7300
+2010 BC Bachelor's Females 7047 8100
+2015 BC Bachelor's Females 7304 8300
+2000 BC College Females 5104 5800
+2005 BC College Females 4700 5000
+2010 BC College Females 6230 7000
+2015 BC College Females 7120 8000
+2000 BC Doctorate Females 182 200
+2005 BC Doctorate Females 91 100
+2010 BC Doctorate Females 282 300
+2015 BC Doctorate Females 188 200
+2000 BC Master's Females 1380 1500
+2005 BC Master's Females 1350 1500
+2010 BC Master's Females 2088 2400
+2015 BC Master's Females 2300 2500
+2000 CAN Bachelor's Females 42750 47500
+2005 CAN Bachelor's Females 52740 58600
+2010 CAN Bachelor's Females 54090 60100
+2015 CAN Bachelor's Females 56782 63800
+2000 CAN College Females 39039 42900
+2005 CAN College Females 37890 42100
+2010 CAN College Females 44767 50300
+2015 CAN College Females 45327 52100
+2000 CAN Doctorate Females 1408 1600
+2005 CAN Doctorate Females 1365 1500
+2010 CAN Doctorate Females 2576 2800
+2015 CAN Doctorate Females 2047 2300
+2000 CAN Master's Females 10769 12100
+2005 CAN Master's Females 13248 14400
+2010 CAN Master's Females 18952 20600
+2015 CAN Master's Females 24843 27300
+2000 MB Bachelor's Females 1638 1800
+2005 MB Bachelor's Females 2002 2200
+2010 MB Bachelor's Females 1860 2000
+2015 MB Bachelor's Females 1958 2200
+2000 MB College Females 1068 1200
+2005 MB College Females 1260 1400
+2010 MB College Females 1456 1600
+2015 MB College Females 1305 1500
+2000 MB Doctorate Females 0 0
+2005 MB Doctorate Females 0 0
+2010 MB Doctorate Females 86 100
+2000 MB Master's Females 267 300
+2005 MB Master's Females 380 400
+2010 MB Master's Females 372 400
+2015 MB Master's Females 510 600
+2000 NB Bachelor's Females 1105 1300
+2005 NB Bachelor's Females 1335 1500
+2010 NB Bachelor's Females 1260 1400
+2015 NB Bachelor's Females 1080 1200
+2000 NB College Females 870 1000
+2005 NB College Females 1001 1100
+2010 NB College Females 435 500
+2015 NB College Females 979 1100
+2000 NB Doctorate Females 0 0
+2005 NB Doctorate Females 0 0
+2010 NB Doctorate Females 0 0
+2015 NB Doctorate Females 88 100
+2000 NB Master's Females 180 200
+2005 NB Master's Females 182 200
+2010 NB Master's Females 188 200
+2015 NB Master's Females 276 300
+2000 NL Bachelor's Females 609 700
+2005 NL Bachelor's Females 957 1100
+2010 NL Bachelor's Females 792 900
+2015 NL Bachelor's Females 609 700
+2000 NL College Females 560 700
+2005 NL College Females 340 400
+2010 NL College Females 656 800
+2015 NL College Females 178 200
+2005 NL Doctorate Females 0 0
+2010 NL Doctorate Females 0 0
+2015 NL Doctorate Females 0 0
+2000 NL Master's Females 93 100
+2005 NL Master's Females 184 200
+2010 NL Master's Females 285 300
+2015 NL Master's Females 332 400
+2000 NS Bachelor's Females 1584 1800
+2005 NS Bachelor's Females 2160 2400
+2010 NS Bachelor's Females 1890 2100
+2015 NS Bachelor's Females 1911 2100
+2000 NS College Females 1350 1500
+2005 NS College Females 1144 1300
+2010 NS College Females 1720 2000
+2015 NS College Females 1440 1600
+2000 NS Doctorate Females 0 0
+2005 NS Doctorate Females 0 0
+2010 NS Doctorate Females 90 100
+2000 NS Master's Females 465 500
+2005 NS Master's Females 760 800
+2010 NS Master's Females 950 1000
+2015 NS Master's Females 1104 1200
+2000 ON Bachelor's Females 16192 17600
+2005 ON Bachelor's Females 19800 22000
+2010 ON Bachelor's Females 20114 22600
+2015 ON Bachelor's Females 22264 25300
+2000 ON College Females 20700 22500
+2005 ON College Females 15576 17700
+2010 ON College Females 18810 20900
+2015 ON College Females 18146 21100
+2000 ON Doctorate Females 516 600
+2005 ON Doctorate Females 546 600
+2010 ON Doctorate Females 801 900
+2015 ON Doctorate Females 890 1000
+2000 ON Master's Females 4176 4800
+2005 ON Master's Females 4876 5300
+2010 ON Master's Females 6900 7500
+2015 ON Master's Females 8918 9800
+2000 PE Bachelor's Females 180 200
+2005 PE Bachelor's Females 172 200
+2010 PE Bachelor's Females 192 200
+2015 PE Bachelor's Females 176 200
+2000 PE College Females 356 400
+2005 PE College Females 264 300
+2010 PE College Females 270 300
+2015 PE College Females 364 400
+2005 PE Master's Females 0 0
+2010 PE Master's Females 0 0
+2015 PE Master's Females 91 100
+2000 QC Bachelor's Females 10179 11700
+2005 QC Bachelor's Females 12144 13800
+2010 QC Bachelor's Females 13857 14900
+2015 QC Bachelor's Females 13172 14800
+2000 QC College Females 5520 6000
+2005 QC College Females 8190 9000
+2010 QC College Females 9737 10700
+2015 QC College Females 9256 10400
+2000 QC Doctorate Females 425 500
+2005 QC Doctorate Females 352 400
+2010 QC Doctorate Females 950 1000
+2015 QC Doctorate Females 630 700
+2000 QC Master's Females 3240 3600
+2005 QC Master's Females 4185 4500
+2010 QC Master's Females 6324 6800
+2015 QC Master's Females 9009 9900
+2000 SK Bachelor's Females 1840 2000
+2005 SK Bachelor's Females 1638 1800
+2010 SK Bachelor's Females 1890 2100
+2015 SK Bachelor's Females 1932 2100
+2000 SK College Females 1196 1300
+2005 SK College Females 1012 1100
+2010 SK College Females 1092 1200
+2015 SK College Females 1056 1200
+2000 SK Doctorate Females 0 0
+2005 SK Doctorate Females 0 0
+2010 SK Doctorate Females 92 100
+2015 SK Doctorate Females 0 0
+2000 SK Master's Females 276 300
+2005 SK Master's Females 267 300
+2010 SK Master's Females 368 400
+2015 SK Master's Females 455 500
+2000 AB Bachelor's Males 2790 3000
+2005 AB Bachelor's Males 3648 3800
+2010 AB Bachelor's Males 3800 4000
+2015 AB Bachelor's Males 3780 4200
+2000 AB College Males 1638 1800
+2005 AB College Males 2470 2600
+2010 AB College Males 3528 3600
+2015 AB College Males 3772 4100
+2000 AB Doctorate Males 194 200
+2005 AB Doctorate Males 190 200
+2010 AB Doctorate Males 270 300
+2015 AB Doctorate Males 273 300
+2000 AB Master's Males 686 700
+2005 AB Master's Males 960 1000
+2010 AB Master's Males 1045 1100
+2015 AB Master's Males 1104 1200
+2000 BC Bachelor's Males 3471 3900
+2005 BC Bachelor's Males 3906 4200
+2010 BC Bachelor's Males 6231 6700
+2015 BC Bachelor's Males 5096 5600
+2000 BC College Males 4005 4500
+2005 BC College Males 3036 3300
+2010 BC College Males 4794 5100
+2015 BC College Males 6279 6900
+2000 BC Doctorate Males 291 300
+2005 BC Doctorate Males 188 200
+2010 BC Doctorate Males 285 300
+2015 BC Doctorate Males 186 200
+2000 BC Master's Males 960 1000
+2005 BC Master's Males 1034 1100
+2010 BC Master's Males 1140 1200
+2015 BC Master's Males 1710 1800
+2000 CAN Bachelor's Males 27857 31300
+2005 CAN Bachelor's Males 33396 36300
+2010 CAN Bachelor's Males 37665 40500
+2015 CAN Bachelor's Males 41032 44600
+2000 CAN College Males 28569 32100
+2005 CAN College Males 27027 29700
+2010 CAN College Males 34580 38000
+2015 CAN College Males 37492 41200
+2000 CAN Doctorate Males 2024 2200
+2005 CAN Doctorate Males 1547 1700
+2010 CAN Doctorate Males 2604 2800
+2015 CAN Doctorate Males 2340 2600
+2000 CAN Master's Males 8272 8800
+2005 CAN Master's Males 9776 10400
+2010 CAN Master's Males 11811 12700
+2015 CAN Master's Males 17577 18900
+2000 MB Bachelor's Males 1045 1100
+2005 MB Bachelor's Males 1222 1300
+2010 MB Bachelor's Males 1222 1300
+2015 MB Bachelor's Males 1365 1500
+2000 MB College Males 744 800
+2005 MB College Males 873 900
+2010 MB College Males 1128 1200
+2015 MB College Males 1260 1400
+2000 MB Doctorate Males 0 0
+2005 MB Doctorate Males 95 100
+2010 MB Doctorate Males 0 0
+2015 MB Doctorate Males 89 100
+2000 MB Master's Males 194 200
+2005 MB Master's Males 190 200
+2010 MB Master's Males 285 300
+2015 MB Master's Males 376 400
+2000 NB Bachelor's Males 720 800
+2005 NB Bachelor's Males 810 900
+2010 NB Bachelor's Males 873 900
+2015 NB Bachelor's Males 736 800
+2000 NB College Males 1044 1200
+2005 NB College Males 1056 1200
+2010 NB College Males 375 500
+2015 NB College Males 1157 1300
+2000 NB Doctorate Males 0 0
+2005 NB Doctorate Males 0 0
+2010 NB Doctorate Males 0 0
+2015 NB Doctorate Males 0 0
+2000 NB Master's Males 98 100
+2005 NB Master's Males 188 200
+2010 NB Master's Males 170 200
+2015 NB Master's Males 184 200
+2000 NL Bachelor's Males 340 400
+2005 NL Bachelor's Males 455 500
+2010 NL Bachelor's Males 475 500
+2015 NL Bachelor's Males 552 600
+2000 NL College Males 553 700
+2005 NL College Males 172 200
+2010 NL College Males 902 1100
+2015 NL College Males 168 200
+2005 NL Doctorate Males 0 0
+2010 NL Doctorate Males 0 0
+2000 NL Master's Males 93 100
+2005 NL Master's Males 192 200
+2010 NL Master's Males 96 100
+2015 NL Master's Males 258 300
+2000 NS Bachelor's Males 1170 1300
+2005 NS Bachelor's Males 1335 1500
+2010 NS Bachelor's Males 1456 1600
+2015 NS Bachelor's Males 1479 1700
+2000 NS College Males 1079 1300
+2005 NS College Males 1144 1300
+2010 NS College Males 1218 1400
+2015 NS College Males 1274 1400
+2000 NS Doctorate Males 0 0
+2005 NS Doctorate Males 0 0
+2010 NS Doctorate Males 0 0
+2015 NS Doctorate Males 95 100
+2000 NS Master's Males 291 300
+2005 NS Master's Males 470 500
+2010 NS Master's Males 480 500
+2015 NS Master's Males 564 600
+2000 ON Bachelor's Males 10648 12100
+2005 ON Bachelor's Males 12870 14300
+2010 ON Bachelor's Males 13160 14000
+2015 ON Bachelor's Males 15750 17500
+2000 ON College Males 14256 16200
+2005 ON College Males 11921 13100
+2010 ON College Males 15480 17200
+2015 ON College Males 16835 18500
+2000 ON Doctorate Males 744 800
+2005 ON Doctorate Males 728 800
+2010 ON Doctorate Males 930 1000
+2015 ON Doctorate Males 1092 1200
+2000 ON Master's Males 3135 3300
+2005 ON Master's Males 3666 3900
+2010 ON Master's Males 4876 5300
+2015 ON Master's Males 6768 7200
+2000 PE Bachelor's Males 93 100
+2005 PE Bachelor's Males 94 100
+2010 PE Bachelor's Males 92 100
+2015 PE Bachelor's Males 88 100
+2000 PE College Males 372 400
+2005 PE College Males 261 300
+2010 PE College Males 352 400
+2015 PE College Males 440 500
+2010 PE Master's Males 0 0
+2000 QC Bachelor's Males 6675 7500
+2005 QC Bachelor's Males 7980 8400
+2010 QC Bachelor's Males 9108 9900
+2015 QC Bachelor's Males 10735 11300
+2000 QC College Males 3780 4200
+2005 QC College Males 5460 6000
+2010 QC College Males 5796 6300
+2015 QC College Males 5394 5800
+2000 QC Doctorate Males 623 700
+2005 QC Doctorate Males 440 500
+2010 QC Doctorate Males 920 1000
+2015 QC Doctorate Males 609 700
+2000 QC Master's Males 2430 2700
+2005 QC Master's Males 2976 3200
+2010 QC Master's Males 3478 3700
+2015 QC Master's Males 6324 6800
+2000 SK Bachelor's Males 1140 1200
+2005 SK Bachelor's Males 1140 1200
+2010 SK Bachelor's Males 1316 1400
+2015 SK Bachelor's Males 1288 1400
+2000 SK College Males 736 800
+2005 SK College Males 752 800
+2010 SK College Males 1104 1200
+2015 SK College Males 957 1100
+2000 SK Doctorate Males 86 100
+2005 SK Doctorate Males 0 0
+2010 SK Doctorate Males 100 100
+2015 SK Doctorate Males 90 100
+2000 SK Master's Males 291 300
+2005 SK Master's Males 192 200
+2010 SK Master's Males 282 300
+2015 SK Master's Males 380 400./main.cc0000770000000000017460000000042013765522300011511 0ustar  rootvboxsf#include <iostream>
+/*#include <string>
+#include <vector>*/
+using namespace std;
+
+#include "Control.h"
+
+int main(){ 
+  Control control;
+  control.launch();
+
+  cout<<endl<<"------Remove Debug staments, print(), add preambles------"<<endl<<endl;
+  return 0;
+}
+./Makefile0000770000000000017460000000152313765566743011746 0ustar  rootvboxsfOBJ = main.o Record.o ReportGenerator.o EmploymentAll.o EmploymentFemale.o EmploymentYear.o DegreeReport.o AverageReport.o Control.o View.o
+
+OPT = 
+
+f: $(OBJ)
+	g++ $(OPT) -o f $(OBJ)
+
+main.o: main.cc
+	g++ $(OPT) -c main.cc
+
+Record.o: Record.cc Record.h
+	g++ $(OPT) -c Record.cc
+
+ReportGenerator.o: ReportGenerator.cc ReportGenerator.h Property.h
+	g++ $(OPT) -c ReportGenerator.cc
+
+EmploymentAll.o: EmploymentAll.cc
+	g++ $(OPT) -c EmploymentAll.cc
+
+EmploymentFemale.o: EmploymentFemale.cc
+	g++ $(OPT) -c EmploymentFemale.cc
+
+EmploymentYear.o: EmploymentYear.cc
+	g++ $(OPT) -c EmploymentYear.cc
+
+DegreeReport.o: DegreeReport.cc
+	g++ $(OPT) -c DegreeReport.cc
+
+AverageReport.o: AverageReport.cc
+	g++ $(OPT) -c AverageReport.cc
+
+View.o: View.cc View.h
+	g++ $(OPT) -c View.cc
+
+Control.o: Control.cc Control.h
+	g++ $(OPT) -c Control.cc
+
+clean:
+	rm -f *.o f
+./Property.h0000770000000000017460000000217713765115506012274 0ustar  rootvboxsf#ifndef PROPERTY_H
+#define PROPERTY_H
+
+#include<vector>
+#include <iostream>
+using namespace std;
+
+#include "Record.h"
+
+template <class T>
+class Property
+{
+public:
+    Property(T);
+    ~Property();
+    Property& operator+=(Record*);
+    Record* operator[](int);
+    T getProperty();
+    int getSize();
+    void print();
+private:
+    T property;
+    vector<Record*> records;
+};
+
+template <class T>
+Property<T>::Property(T p) : property(p) {}
+
+template <class T>
+Property<T>::~Property(){
+    records.clear();
+}
+
+template <class T>
+Property<T>& Property<T>::operator+=(Record* r){
+    records.push_back(r);
+    return *this;
+}
+
+template <class T>
+Record* Property<T>::operator[](int i){
+    return records[i];
+}
+
+template <class T>
+T Property<T>::getProperty(){   return property; }
+
+template <class T>
+int Property<T>::getSize(){  return records.size();    }
+
+template <class T>
+void Property<T>::print(){
+    cout<<"---List of records (Property):"<<endl;
+    for (int i=0; i<records.size(); i++){
+        cout<<i<<". "; 
+        records[i]->print();
+    }
+    //records[0]->print();
+}
+
+#endif./README0000770000000000017460000000140313765570003011143 0ustar  rootvboxsfAdeoye Banjo
+101109343
+
+Canadian Graduate Statistics
+    Program uses a data file to compute and display different
+    reports made form data records
+
+Files:
+AverageReport.cc      desktop.ini          main.cc     Record.h
+comp2404fpUML.drawio  EmploymentAll.cc     Makefile    ReportGenerator.cc
+Control.cc            EmploymentFemale.cc  Property.h  ReportGenerator.h
+Control.h             EmploymentYear.cc    View.cc
+DegreeReport.cc       grad.dat             Record.cc   View.h
+
+
+Extra Reports:
+1. DegreeReport 
+This is report calculates the most commonly attained degree 
+of the graduates in each region, for all years, and genders
+
+2. AverageReport
+This report calculates the proportion of graduates from each
+region to the the total in canada./Record.cc0000770000000000017460000000123313764771130012014 0ustar  rootvboxsf#include "Record.h"
+
+Record::Record(int y, string r, string d, string g, int ne, int ng) :
+    year(y), region(r), degree(d), gender(g), numEmployed(ne), numGrads(ng)
+{ }
+
+Record::~Record(){
+    //cout << "--record dtor -- "<<endl;
+}
+
+int Record::getYear(){  return year;}
+string Record::getRegion(){  return region; }
+string Record::getDegree(){  return degree; }
+string Record::getGender(){  return gender; }
+int Record::getNumGrads(){  return numGrads;    }
+int Record::getNumEmployed(){  return numEmployed;  }
+
+void Record::print(){
+    cout<<" "<<year<<" "<<region<<" "<<degree<<" "<<gender<<" "
+      <<numEmployed<<" "<<numGrads<<endl;
+}
+./Record.h0000770000000000017460000000076513764732424011672 0ustar  rootvboxsf#ifndef RECORD_H
+#define RECORD_H
+#include <string>
+#include <iostream>
+using namespace std;
+
+class Record
+{
+public:
+    Record(int, string, string, string, int, int);
+    ~Record();
+    int getYear();
+    string getRegion();
+    string getDegree();
+    string getGender();
+    int getNumGrads();
+    int getNumEmployed();
+    void print();
+private:
+    int year;
+    string region;
+    string degree;
+    string gender;
+    int numEmployed;
+    int numGrads;
+
+};
+
+#endif
+./ReportGenerator.cc0000770000000000017460000000731213765566706013740 0ustar  rootvboxsf#include "ReportGenerator.h"
+
+vector<Record*> ReportGenerator::recordsPrime;
+vector< Property<int>* > ReportGenerator::allYears;
+vector< Property<string>* > ReportGenerator::allRegions;
+vector< Property<string>* > ReportGenerator::allDegrees;
+vector< Property<string>* > ReportGenerator::allGenders;
+bool ReportGenerator::isfreed=0;
+
+ReportGenerator::ReportGenerator(string n) : name(n)
+{    
+    cout<<"-- ReportGenerator ctor: "<<name<<endl;
+}
+
+ReportGenerator::~ReportGenerator(){    
+    //cout<<"isfreed: "<<isfreed<<endl;
+    if(isfreed==0){
+        for (int i=0; i<recordsPrime.size(); ++i)
+           delete recordsPrime[i];
+
+        for (int i=0; i<allYears.size(); ++i)
+            delete allYears[i];         
+        for (int i=0; i<allRegions.size(); ++i)
+            delete allRegions[i];
+        for (int i=0; i<allDegrees.size(); ++i)
+            delete allDegrees[i];
+        for (int i=0; i<allGenders.size(); ++i)
+            delete allGenders[i];
+
+        isfreed=1;
+        //cout<<"isfreed: "<<isfreed<<endl;
+    }
+    cout<<"-- ReportGenerator dtor: "<<name<<endl;
+}
+
+void ReportGenerator::loadRecords(){
+    try
+    {
+        int y, ng, ne;
+        string deg,gen,reg;
+
+        ifstream infile("grad.dat", ios::in);
+        if (!infile) {
+            cout << "Error: could not open file" << endl;
+            exit(1);
+        }
+
+        while( infile >> y>> reg>> deg>> gen>> ne>> ng){
+            Record* rec = new Record(y,reg,deg,gen,ne,ng);
+            recordsPrime.push_back(rec);
+        }
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr <<"--- Error while loading records from 'grades.dat'"<< '\n';
+    }    
+}
+
+//fills each partial collection with the records of 
+//the corresondinig type
+void ReportGenerator::loadPartials(){
+    //allYears
+    int arr[] = {2000,2005,2010,2015};
+    int size = sizeof(arr)/sizeof(arr[0]); 
+    for(int i=0;i<size;i++){
+        int n=arr[i];
+        Property<int>* p = new Property<int>(n);
+        for (int i=0; i<recordsPrime.size(); ++i){
+            if (recordsPrime[i]->getYear()==n){
+                //cout<<"adding: "<<endl;recordsPrime[i]->print();
+                *p+=recordsPrime[i]; 
+            }
+        }
+        allYears.push_back(p);
+        //ptr->print();
+        //allYears[i]->print();
+        //cout<<allYears.size()<<endl;
+    }
+
+    //allregions   
+    string arr2[] = {"NL","PE","NS","QC","ON","NB","SK","AB","BC","CAN"};
+    size = sizeof(arr2)/sizeof(arr2[0]);     
+    for(int i=0;i<size;i++){
+        string n=arr2[i];
+        Property<string>* p = new Property<string>(n);
+        for (int i=0; i<recordsPrime.size(); ++i){
+            if (recordsPrime[i]->getRegion()==n)
+                *p+=recordsPrime[i];
+        }
+        allRegions.push_back(p);
+    }
+
+    string arr3[] = {"Doctorate","Master's","Bachelor's","College"};
+    size = sizeof(arr3)/sizeof(arr3[0]); 
+    for(int i=0;i<size;i++){
+        string n=arr3[i];
+        Property<string>* p = new Property<string>(n);
+        for (int i=0; i<recordsPrime.size(); ++i){
+            if (recordsPrime[i]->getDegree()==n){
+                *p+=recordsPrime[i]; 
+            }
+        }
+        allDegrees.push_back(p);
+    }
+    
+
+    string arr4[] = {"Males","Females","All"};
+    size = sizeof(arr4)/sizeof(arr4[0]); 
+    for(int i=0;i<size;i++){
+        string n=arr4[i];
+        Property<string>* p = new Property<string>(n);
+        for (int i=0; i<recordsPrime.size(); ++i){
+            if (recordsPrime[i]->getGender()==n){
+                *p+=recordsPrime[i]; 
+            }
+        }
+        allGenders.push_back(p);
+    }
+    
+
+} 
+
+string ReportGenerator::getName(){  return name; }
+./ReportGenerator.h0000770000000000017460000000557513765566403013605 0ustar  rootvboxsf#ifndef REPORTGENERATOR_H
+#define REPORTGENERATOR_H
+
+#include <string>
+#include <iostream>
+#include <sstream>
+#include <vector>
+#include <fstream>
+#include <iterator>
+#include <iomanip>
+using namespace std;
+
+#include "Record.h"
+#include "Property.h"
+
+/*
+Class:    ReportGenerator
+Purpose:  contains large list of data records used to calculate statistical
+            reports on recorded data
+
+Member function:  constructor
+   Side effects:  initializes ReportGenerator with given name
+
+Member function:  destructor
+   Side effects:  deallocates all data records that were loaded in.
+                  contians a bool data member to check if they have been freed already
+                  so they aren't freed again
+
+Member function:  loadRecords
+        Purpose:  allocates and fills primary collection of records
+
+Member function:  loadPartials
+        Purpose:  adds record pointers from primeary collection to
+                    corresponding partial collection
+
+Member function:  execute
+        Purpose:  calculates data for report, formats and outputs data as string
+            out:  string printed by view obj
+*/
+class ReportGenerator
+{
+public:
+    ReportGenerator(string);
+    ~ReportGenerator();
+    static void loadRecords(); 
+    static void loadPartials();
+    virtual void execute(string&) = 0;
+    string getName();
+    //void printRecords();
+
+protected:
+    string name;
+    static bool isfreed;
+    static vector<Record*> recordsPrime;
+    static vector< Property<int>* > allYears;
+    static vector< Property<string>* > allRegions;
+    static vector< Property<string>* > allDegrees;
+    static vector< Property<string>* > allGenders;
+};
+
+
+/*
+Classes:    ReportGenerator derived objects
+Purpose:  specialized polymorphic objects for formatting different reports
+
+Member function:  execute
+        Purpose:  polymorphic function to format different reports
+*/
+
+
+class EmploymentAll : public ReportGenerator
+{
+public:
+    EmploymentAll(string);
+    ~EmploymentAll();
+    void execute(string&);
+};
+
+class EmploymentFemale : public ReportGenerator
+{
+public:
+    EmploymentFemale(string);
+    ~EmploymentFemale();
+    void execute(string&);
+    void calcTop(vector<float>&, vector<string>&);
+    void calcBottom(vector<float>&, vector<string>&);
+};
+
+class EmploymentYear : public ReportGenerator
+{
+public:
+    EmploymentYear(string);
+    ~EmploymentYear();
+    void execute(string&);
+    void calcYear(int, int, vector<float>&);
+};
+
+class DegreeReport : public ReportGenerator
+{
+public:
+    DegreeReport(string);
+    ~DegreeReport();
+    void execute(string&);
+    void calcHighest(string, int, vector<string>&);
+};
+
+class AverageReport : public ReportGenerator
+{
+public:
+    AverageReport(string);
+    ~AverageReport();
+    void execute(string&);
+    void calcAvg(string, int, int, vector<float>&);
+};
+
+#endif
+./View.cc0000770000000000017460000000157113765561725011525 0ustar  rootvboxsf#include <iostream>
+using namespace std;
+#include <string>
+#include <vector>
+
+#include "View.h"
+
+void View::showMenu(int& choice, vector<string> names)
+{
+  cout << endl << endl;
+  cout << "Which report would you like to view:"<< endl;
+  for(int i=0;i<names.size();i++)
+    cout << "  ("<<i+1<<") "<< names[i] << endl;
+  /*cout << "  (1) "<< names[0] << endl;
+  cout << "  (2) "<< names[1] << endl;
+  cout << "  (3) "<< names[3] << endl;
+  cout << "  (4) "<< names[3] << endl;
+  cout << "  (5) "<< names[4] << endl;*/
+  cout << "  (0) Exit" << endl<<endl;
+
+  cout << "Enter your selection: ";
+  cin >> choice;
+  if (choice == 0)
+    return;
+
+  while (choice < 1 || choice > 5) {
+    cout << "Enter your selection: ";
+    cin >> choice;
+  }
+
+}
+
+void View::printStr(string str)
+{
+  cout << str;
+}
+
+void View::readInt(int& n)
+{
+  cin >> n;
+}
+
+void View::readStr(string& str)
+{
+  cin >> str;
+}
+./View.h0000770000000000017460000000036513765465563011372 0ustar  rootvboxsf#ifndef VIEW_H
+#define VIEW_H
+
+#include <iostream>
+#include <string>
+using namespace std;
+
+
+class View
+{
+  public:
+    void showMenu(int&, vector<string>);
+    void printStr(string);
+    void readInt(int&);
+    void readStr(string&);
+};
+
+#endif
